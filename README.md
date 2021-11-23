@@ -71,32 +71,7 @@ func main() {
 }
 ```
 
-## default-value
-`fill.FillDefault` is equal of `fill.Fill(v, fill.OptDefault)`.
-```go
-package main
-
-import (
-	"fmt"
-	"github.com/czasg/go-fill"
-)
-
-type Request struct {
-	Trace      string `default:"no-trace"`
-	PageSize   int    `default:"20"`
-	PageNumber int    `default:"1"`
-}
-
-func main() {
-	request := Request{}
-	request.Trace = "no-zero-value will not be filled with default-value"
-	_ = fill.FillDefault(&request)
-	fmt.Println(request)
-}
-```
-
-## step env
-### tag list
+### env tag list
 |tag|comment|
 |---|---|
 |env:"fieldName"|default is struct field name, you can also point a new fieldName.|
@@ -149,5 +124,30 @@ func main() {
 	cfg := Config{}
 	_ = fill.FillEnv(&cfg)
 	fmt.Println(cfg)
+}
+```
+
+
+## default-value
+`fill.FillDefault` is equal of `fill.Fill(v, fill.OptDefault)`.
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/czasg/go-fill"
+)
+
+type Request struct {
+	Trace      string `default:"no-trace"`
+	PageSize   int    `default:"20"`
+	PageNumber int    `default:"1"`
+}
+
+func main() {
+	request := Request{}
+	request.Trace = "no-zero-value will not be filled with default-value"
+	_ = fill.FillDefault(&request)
+	fmt.Println(request)
 }
 ```
