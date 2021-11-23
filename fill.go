@@ -14,6 +14,7 @@ type Opt int
 const (
     OptEnv Opt = 1 << iota
     OptDefault
+    OptSilent // ignore err and iterate over all fields.
 )
 
 type Payload struct {
@@ -53,7 +54,7 @@ func fill(payload Payload) error {
         payload.Field = payload.Value.Field(i)
         payload.StructField = payload.Value.Type().Field(i)
         err := fill2(payload)
-        if err != nil {
+		if err != nil && payload.Opt&OptSilent != OptSilent {
             return err
         }
     }
