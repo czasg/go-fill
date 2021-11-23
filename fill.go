@@ -28,6 +28,14 @@ var (
     NotPointerStructErr = errors.New("only the pointer to a struct is supported")
 )
 
+func FillEnv(v interface{}) error {
+    return Fill(v, OptEnv)
+}
+
+func FillDefault(v interface{}) error {
+    return Fill(v, OptDefault)
+}
+
 func Fill(v interface{}, opts ...Opt) error {
     ind := reflect.Indirect(reflect.ValueOf(v))
     if reflect.ValueOf(v).Kind() != reflect.Ptr || ind.Kind() != reflect.Struct {

@@ -47,6 +47,8 @@ func TestFill(t *testing.T) {
     assert := assertWrap(t)
     {
         assert("NotPointerStructErr", Fill(""), NotPointerStructErr)
+        assert("NotPointerStructErr", FillDefault(""), NotPointerStructErr)
+        assert("NotPointerStructErr", FillEnv(""), NotPointerStructErr)
     }
     {
         testString := TestString{NotEmpty: "NotEmpty"}
