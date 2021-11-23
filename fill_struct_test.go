@@ -51,7 +51,7 @@ func TestStructFill(t *testing.T) {
         _ = os.Setenv("mysql_ADDR", "mysql")
         _ = os.Setenv("mysql_PASSWORD", "mysql")
         _ = os.Setenv("mysql_DB", "mysql")
-        _ = os.Setenv("mysql_name", "mysqlname")
+        _ = os.Setenv("mysql_NAME", "mysqlname")
         _ = os.Setenv("RPC_USER_NAME", "rpc")
         _ = os.Setenv("RDS_ADDR", "redis")
         _ = os.Setenv("RDS_PASSWORD", "redis")
