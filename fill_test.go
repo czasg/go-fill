@@ -91,7 +91,7 @@ func assertWrap(t *testing.T) func(name string, a, b interface{}) {
     return func(name string, a, b interface{}) {
         name = nw(name)
         if !reflect.DeepEqual(a, b) {
-            t.Fatalf("%s failure! [%v] != [%v]", name, a, b)
+            t.Errorf("%s failure! [%v] != [%v]", name, a, b)
         } else {
             t.Logf("%s - pass", name)
         }
