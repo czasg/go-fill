@@ -3,10 +3,10 @@
 [![codecov](https://codecov.io/gh/czasg/go-fill/branch/main/graph/badge.svg?token=OkiSH6DMqf)](https://codecov.io/gh/czasg/go-fill)
 [![GitHub Stars](https://img.shields.io/github/stars/czasg/go-fill.svg?style=flat-square&label=Stars&logo=github)](https://github.com/czasg/go-fill/stargazers)
 
-Auto filling zero-value、env-value、default-value into a pointer-struct.
+用于填充结构体空值、环境变量、默认值.
 
-## zero-value
-use `fill.Fill`, it can fill most zero-value.
+## 填充空值
+对于`Slice`、`Map`这种结构体，填充后为空值而非nil
 ```go
 package main
 
@@ -29,12 +29,12 @@ type Data struct {
 func main() {
 	response := Response{}   // response.Data is nil.
 	_ = fill.Fill(&response) // response.Data is zero-value.
-	fmt.Println(response.Data == nil)
-	fmt.Println(response.Data.Body == nil)
+	fmt.Println(response.Data == nil) // false
+	fmt.Println(response.Data.Body == nil) // false
 }
 ```
 
-## env-value
+## 填充环境变量
 `fill.FillEnv` is equal of `fill.Fill(v, fill.OptEnv)`.
 ```go
 package main
@@ -128,7 +128,7 @@ func main() {
 ```
 
 
-## default-value
+## 填充默认值
 `fill.FillDefault` is equal of `fill.Fill(v, fill.OptDefault)`.
 ```go
 package main
