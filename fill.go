@@ -18,15 +18,18 @@ const (
 )
 
 type Payload struct {
-    Value       reflect.Value
-    Prefix      string
-    Opt         Opt
-    Field       reflect.Value
-    StructField reflect.StructField
+    Value          reflect.Value
+    Prefix         string
+    Opt            Opt
+    Field          reflect.Value
+    StructField    reflect.StructField
+    RecursionCount int
 }
 
 var (
-    NotPointerStructErr = errors.New("only the pointer to a struct is supported")
+    RecursionThreshold    = 256
+    RecursionError        = errors.New("maximum recursion depth exceeded")
+    NotPointerStructError = errors.New("only the pointer to a struct is supported")
 )
 
 func FillEnv(v interface{}) error {
@@ -40,7 +43,7 @@ func FillDefault(v interface{}) error {
 func Fill(v interface{}, opts ...Opt) error {
     ind := reflect.Indirect(reflect.ValueOf(v))
     if reflect.ValueOf(v).Kind() != reflect.Ptr || ind.Kind() != reflect.Struct {
-        return NotPointerStructErr
+        return NotPointerStructError
     }
     var opt Opt = 0
     for _, o := range opts {
@@ -54,7 +57,7 @@ func fill(payload Payload) error {
         payload.Field = payload.Value.Field(i)
         payload.StructField = payload.Value.Type().Field(i)
         err := fill2(payload)
-		if err != nil && payload.Opt&OptSilent != OptSilent {
+        if err != nil && payload.Opt&OptSilent != OptSilent {
             return err
         }
     }
@@ -62,6 +65,9 @@ func fill(payload Payload) error {
 }
 
 func fill2(payload Payload) error {
+    if payload.RecursionCount > RecursionThreshold {
+        return RecursionError
+    }
     switch payload.Field.Kind() {
     case reflect.Ptr:
         return parsePtr(payload)
@@ -136,7 +142,12 @@ func parseValue(payload Payload) (string, error) {
 }
 
 func parsePtr(payload Payload) error {
+    defer func() {
+        if err := recover(); err != nil {
+        }
+    }()
     if payload.Field.IsNil() {
+        payload.RecursionCount++
         field := reflect.New(payload.Field.Type().Elem())
         payload.Field.Set(field)
         payload.Field = field.Elem()
