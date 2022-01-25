@@ -27,9 +27,9 @@ type Payload struct {
 }
 
 var (
-    RecursionThreshold    = 256
-    RecursionError        = errors.New("maximum recursion depth exceeded")
-    NotPointerStructError = errors.New("only the pointer to a struct is supported")
+    RecursionThreshold  = 256
+    RecursionErr        = errors.New("maximum recursion depth exceeded")
+    NotPointerStructErr = errors.New("only the pointer to a struct is supported")
 )
 
 func FillEnv(v interface{}) error {
@@ -43,7 +43,7 @@ func FillDefault(v interface{}) error {
 func Fill(v interface{}, opts ...Opt) error {
     ind := reflect.Indirect(reflect.ValueOf(v))
     if reflect.ValueOf(v).Kind() != reflect.Ptr || ind.Kind() != reflect.Struct {
-        return NotPointerStructError
+        return NotPointerStructErr
     }
     var opt Opt = 0
     for _, o := range opts {
@@ -66,7 +66,7 @@ func fill(payload Payload) error {
 
 func fill2(payload Payload) error {
     if payload.RecursionCount > RecursionThreshold {
-        return RecursionError
+        return RecursionErr
     }
     switch payload.Field.Kind() {
     case reflect.Ptr:
