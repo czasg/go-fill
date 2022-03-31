@@ -5,35 +5,6 @@
 
 用于填充结构体空值、环境变量、默认值.
 
-## 填充空值
-对于`Slice`、`Map`这种结构体，填充后为空值而非nil
-```go
-package main
-
-import (
-	"fmt"
-	"github.com/czasg/go-fill"
-)
-
-type Response struct {
-	Code    int
-	Message string
-	Data    *Data
-}
-
-type Data struct {
-	Trace string
-	Body  []byte
-}
-
-func main() {
-	response := Response{}   // response.Data is nil.
-	_ = fill.Fill(&response) // response.Data is zero-value.
-	fmt.Println(response.Data == nil) // false
-	fmt.Println(response.Data.Body == nil) // false
-}
-```
-
 ## 填充环境变量
 `fill.FillEnv` is equal of `fill.Fill(v, fill.OptEnv)`.
 ```go

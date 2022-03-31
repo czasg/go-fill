@@ -52,12 +52,10 @@ func TestPtrFill(t *testing.T) {
     {
         test := TestPtrFillEnv{}
         err := Fill(&test, OptEnv)
-        assert("test fill env", test.TestPtrFillEnv1.A, "test")
-        assert("test fill env", test.TestPtrFillEnv1.B, 1)
-        assert("test fill env", test.TestPtrFillEnv1.TestPtrFillEnv2.A, "test2")
-        assert("test fill env", test.TestPtrFillEnv1.TestPtrFillEnv2.B, 2)
-        assert("test fill env", test.TestPtrFillEnv2.A, "test2")
-        assert("test fill env", test.TestPtrFillEnv2.B, 2)
+        assert("test fill env", test.TestPtrFillEnv1.A, "")
+        assert("test fill env", test.TestPtrFillEnv1.B, 0)
+        assert("test fill env", test.TestPtrFillEnv2.A, "")
+        assert("test fill env", test.TestPtrFillEnv2.B, 0)
         assert("test fill env", err, nil)
     }
 }

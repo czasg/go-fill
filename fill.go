@@ -23,12 +23,9 @@ type Payload struct {
     Opt            Opt
     Field          reflect.Value
     StructField    reflect.StructField
-    RecursionCount int
 }
 
 var (
-    RecursionThreshold  = 256
-    RecursionErr        = errors.New("maximum recursion depth exceeded")
     NotPointerStructErr = errors.New("only the pointer to a struct is supported")
 )
 
@@ -65,9 +62,6 @@ func fill(payload Payload) error {
 }
 
 func fill2(payload Payload) error {
-    if payload.RecursionCount > RecursionThreshold {
-        return RecursionErr
-    }
     switch payload.Field.Kind() {
     case reflect.Ptr:
         return parsePtr(payload)
@@ -147,11 +141,9 @@ func parsePtr(payload Payload) error {
         }
     }()
     if payload.Field.IsNil() {
-        payload.RecursionCount++
         field := reflect.New(payload.Field.Type().Elem())
         payload.Field.Set(field)
-        payload.Field = field.Elem()
-        return fill2(payload)
+        return nil
     }
     return nil
 }
@@ -266,6 +258,10 @@ func parseChan(payload Payload) error {
 }
 
 func parseMap(payload Payload) error {
+    defer func() {
+        if err := recover(); err != nil {
+        }
+    }()
     if payload.Field.IsNil() {
         payload.Field.Set(reflect.MakeMap(payload.Field.Type()))
     }
@@ -273,13 +269,17 @@ func parseMap(payload Payload) error {
 }
 
 func parseSlice(payload Payload) error {
+    defer func() {
+        if err := recover(); err != nil {
+        }
+    }()
     if payload.Field.IsNil() {
         payload.Field.Set(reflect.MakeSlice(payload.Field.Type(), 0, 0))
     }
     return nil
 }
 
-func parseArray(payload Payload) error {
+func parseArray(_ Payload) error {
     return nil
 }
 
