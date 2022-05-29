@@ -2,57 +2,53 @@ package fill
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"testing"
-	"time"
 )
 
-type TestStringFillEnv struct {
-	A string `env:"A"`
-	B string `env:",default=test"`
-	C string `env:",require"`
-}
-
-type TestStringFillDefault struct {
-	A string `default:"test"`
-}
-
-type TestStringFillEmpty struct {
-	A string
-}
-
-type TestStringFillNotEmpty struct {
-	A string
+type FillStringTest struct {
+	StringA string
+	StringB string  `fill:",default=StringB"`
+	StringC string  `fill:"StringC"`
+	StringD string  `fill:"StringD,require"`
+	StringE string  `fill:"StringE,empty"`
+	StringF *string `fill:"StringF"`
 }
 
 func TestStringFill(t *testing.T) {
 	assert := assertWrap(t)
-	randomA := fmt.Sprintf("%d", time.Now().Unix())
-	_ = os.Setenv("A", randomA)
 	{
-		test := TestStringFillEnv{}
-		err := Fill(&test, OptEnv)
-		assert("test.env", test.A, randomA)
-		assert("test.default", test.B, "test")
-		assert("test.err.require", err, errors.New("C require"))
+		base := FillStringTest{StringD: "StringD"}
+		assert("ignore", Fill(&base), nil)
+		assert("ignore", base.StringA, "")
 	}
 	{
-		test := TestStringFillDefault{}
-		err := Fill(&test, OptDefault)
-		assert("test.default", test.A, "test")
-		assert("test.err.nil", err, nil)
+		base := FillStringTest{StringD: "StringD"}
+		assert("default", Fill(&base), nil)
+		assert("default", base.StringB, "StringB")
 	}
 	{
-		test := TestStringFillEmpty{}
-		err := Fill(&test)
-		assert("test.empty", test.A, "")
-		assert("test.err.nil", err, nil)
+		_ = os.Setenv("StringC", "StringC")
+		base := FillStringTest{StringD: "StringD"}
+		assert("env", FillEnv(&base), nil)
+		assert("env", base.StringC, "StringC")
+		_ = os.Unsetenv("StringC")
 	}
 	{
-		test := TestStringFillNotEmpty{A: "not empty"}
-		err := Fill(&test, OptEnv, OptDefault)
-		assert("test.not.empty", test.A, "not empty")
-		assert("test.err.nil", err, nil)
+		base := FillStringTest{}
+		assert("require", Fill(&base), errors.New("StringD require"))
+	}
+	{
+		_ = os.Setenv("StringE", "StringE")
+		base := FillStringTest{StringD: "StringD"}
+		assert("empty", FillEnv(&base), nil)
+		assert("empty", base.StringE, "")
+		_ = os.Unsetenv("StringE")
+	}
+	{
+		var v *string
+		base := FillStringTest{StringD: "StringD"}
+		assert("ptr", FillEnv(&base), nil)
+		assert("ptr", base.StringF, v)
 	}
 }
