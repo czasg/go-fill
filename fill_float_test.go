@@ -1,63 +1,60 @@
 package fill
 
 import (
-    "errors"
-    "testing"
+	"errors"
+	"os"
+	"testing"
 )
 
-type TestFloatFillEnv struct {
-    A float32 `env:",default=1"`
-    B float64 `env:",default=1"`
-    F float32 `env:",require"`
-}
-
-type TestFloatFillDefault struct {
-    A float32 `default:"1"`
-    B float64 `default:"1"`
-    E float32 `default:"xxx"`
-}
-
-type TestFloatFillEmpty struct {
-    A float32 `default:"1"`
-    B float64 `default:"1"`
-}
-
-type TestFloatFillNotEmpty struct {
-    A float32 `default:"1"`
-    B float64 `default:"1"`
+type FillFloatTest struct {
+	FloatA float32
+	FloatB float32  `fill:",default=1"`
+	FloatC float32  `fill:"FloatC"`
+	FloatD float32  `fill:"FloatD,require"`
+	FloatE float32  `fill:"FloatE,empty"`
+	FloatF *float32 `fill:"FloatF"`
 }
 
 func TestFloatFill(t *testing.T) {
-    assert := assertWrap(t)
-    {
-        test := TestFloatFillEnv{}
-        err := Fill(&test, OptEnv)
-        assert("test.env", test.A, float32(1))
-        assert("test.env", test.B, float64(1))
-        assert("test.err.require", err, errors.New("F require"))
-    }
-    {
-        test := TestFloatFillDefault{}
-        err := Fill(&test, OptDefault)
-        assert("test.env", test.A, float32(1))
-        assert("test.env", test.B, float64(1))
-        assert("test.err.require", err, errors.New("E invalid [xxx]"))
-    }
-    {
-        test := TestFloatFillEmpty{}
-        err := Fill(&test)
-        assert("test.env", test.A, float32(0))
-        assert("test.env", test.B, float64(0))
-        assert("test.err.require", err, nil)
-    }
-    {
-        test := TestFloatFillNotEmpty{
-            A: 1,
-            B: 1,
-        }
-        err := Fill(&test)
-        assert("test.env", test.A, float32(1))
-        assert("test.env", test.B, float64(1))
-        assert("test.err.require", err, nil)
-    }
+	assert := assertWrap(t)
+	{
+		base := FillFloatTest{FloatD: 1}
+		assert("ignore", Fill(&base), nil)
+		assert("ignore", base.FloatD, float32(1))
+	}
+	{
+		base := FillFloatTest{FloatD: 1}
+		assert("default", Fill(&base), nil)
+		assert("default", base.FloatB, float32(1))
+	}
+	{
+		_ = os.Setenv("FloatC", "1")
+		base := FillFloatTest{FloatD: 1}
+		assert("env", FillEnv(&base), nil)
+		assert("env", base.FloatC, float32(1))
+		_ = os.Unsetenv("FloatC")
+	}
+	{
+		base := FillFloatTest{}
+		assert("require", Fill(&base), errors.New("FloatD require"))
+	}
+	{
+		_ = os.Setenv("FloatE", "1")
+		base := FillFloatTest{FloatD: 1}
+		assert("empty", FillEnv(&base), nil)
+		assert("empty", base.FloatE, float32(0))
+		_ = os.Unsetenv("FloatE")
+	}
+	{
+		var v *float32
+		base := FillFloatTest{FloatD: 1}
+		assert("ptr", FillEnv(&base), nil)
+		assert("ptr", base.FloatF, v)
+	}
+	{
+		_ = os.Setenv("FloatC", "x")
+		base := FillFloatTest{FloatD: 1}
+		assert("env", FillEnv(&base), errors.New("FloatC invalid [x]"))
+		_ = os.Unsetenv("FloatC")
+	}
 }

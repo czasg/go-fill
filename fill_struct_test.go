@@ -8,14 +8,14 @@ import (
 )
 
 type TestStructFillEnv struct {
-    TestStructFillEnv1 TestStructFillEnv1 `env:"TestStructFillEnv1"`
-    TestStructFillEnv2 TestStructFillEnv2 `env:"TestStructFillEnv2"`
+    TestStructFillEnv1 TestStructFillEnv1 `fill:"TestStructFillEnv1"`
+    TestStructFillEnv2 TestStructFillEnv2 `fill:"TestStructFillEnv2"`
 }
 
 type TestStructFillEnv1 struct {
     A                  string
     B                  int
-    TestStructFillEnv2 TestStructFillEnv2 `env:"xxx,sep=--"`
+    TestStructFillEnv2 TestStructFillEnv2 `fill:"xxx,sep=--"`
 }
 
 type TestStructFillEnv2 struct {
@@ -84,14 +84,14 @@ func TestStructFill(t *testing.T) {
 
 type StructConfig struct {
     RPC
-    MySQL    `env:"mysql"`
-    Redis    `env:"RDS"`
-    Postgres `env:"PG"`
+    MySQL    `fill:"mysql"`
+    Redis    `fill:"RDS"`
+    Postgres `fill:"PG"`
 }
 
 type RPC struct {
     Addr string
-    Name string `env:",empty"`
+    Name string `fill:",empty"`
     User
 }
 
@@ -99,20 +99,20 @@ type MySQL struct {
     Addr     string
     Password string
     DB       string
-    User     `env:",empty"`
+    User     `fill:",empty"`
 }
 
 type Redis struct {
     Addr     string
     Password string
     DB       int
-    User     `env:"UU,sep=-"`
+    User     `fill:"UU,sep=-"`
 }
 
 type Postgres struct {
-    Addr     string `env:"ADDR,sep=__"`
-    Password string `env:"PASSWORD,sep=__"`
-    DB       string `env:"DB,sep=__"`
+    Addr     string `fill:"ADDR,sep=__"`
+    Password string `fill:"PASSWORD,sep=__"`
+    DB       string `fill:"DB,sep=__"`
     User
 }
 
